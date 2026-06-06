@@ -52,7 +52,7 @@ A production-grade FastAPI service that generates personalized daily wellness sc
 ## Project Structure
 
 ```
-AI_Shedule/
+AI_Schedule/
 ├── app/
 │   ├── main.py            FastAPI app, routes, request_id generation, HTTP error shaping
 │   ├── config.py          Pydantic-Settings; all tunables loaded from env / .env
@@ -190,16 +190,34 @@ curl http://localhost:8000/health
 
 **Request body:**
 
-| Field            | Type                          | Constraints          |
-|------------------|-------------------------------|----------------------|
-| `mood`           | `string`                      | 1–50 characters      |
-| `energy`         | `"low"` \| `"medium"` \| `"high"` | required enum    |
-| `time_available` | `integer`                     | 5–480 minutes        |
+| Field            | Type                          | Constraints                                         |
+|------------------|-------------------------------|-----------------------------------------------------|
+| `mood`           | `string`                      | 1–50 characters                                     |
+| `energy`         | `"low"` \| `"medium"` \| `"high"` \| `"низкая"` \| `"средняя"` \| `"высокая"` | required |
+| `time_available` | `integer`                     | 5–480 minutes                                       |
+
+Russian energy values are normalized to their English equivalents before processing:
+
+| Russian   | English  |
+|-----------|----------|
+| `низкая`  | `low`    |
+| `средняя` | `medium` |
+| `высокая` | `high`   |
+
+**English input:**
 
 ```bash
 curl -i -X POST http://localhost:8000/schedule \
   -H "Content-Type: application/json" \
   -d '{"mood": "anxiety", "energy": "low", "time_available": 30}'
+```
+
+**Russian input:**
+
+```bash
+curl -i -X POST http://localhost:8000/schedule \
+  -H "Content-Type: application/json" \
+  -d '{"mood": "тревога", "energy": "низкая", "time_available": 30}'
 ```
 
 **200 response:**

@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class EnergyLevel(str, Enum):
@@ -9,12 +9,26 @@ class EnergyLevel(str, Enum):
     high = "high"
 
 
+_ENERGY_RU_MAP: dict[str, str] = {
+    "низкая": "low",
+    "средняя": "medium",
+    "высокая": "high",
+}
+
+
 class WellnessRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     mood: str = Field(..., min_length=1, max_length=50)
     energy: EnergyLevel
     time_available: int = Field(..., ge=5, le=480)
+
+    @field_validator("energy", mode="before")
+    @classmethod
+    def normalize_energy(cls, v: object) -> object:
+        if isinstance(v, str):
+            return _ENERGY_RU_MAP.get(v.lower(), v)
+        return v
 
 
 class PracticeItem(BaseModel):

@@ -89,3 +89,23 @@ def test_multiple_practice_items_validate():
     }
     resp = ScheduleResponse.model_validate(data)
     assert len(resp.schedule) == 3
+
+
+def test_russian_energy_low_normalizes_to_enum():
+    req = WellnessRequest(mood="тревога", energy="низкая", time_available=30)
+    assert req.energy == EnergyLevel.low
+
+
+def test_russian_energy_medium_normalizes_to_enum():
+    req = WellnessRequest(mood="стресс", energy="средняя", time_available=20)
+    assert req.energy == EnergyLevel.medium
+
+
+def test_russian_energy_high_normalizes_to_enum():
+    req = WellnessRequest(mood="спокойствие", energy="высокая", time_available=60)
+    assert req.energy == EnergyLevel.high
+
+
+def test_invalid_russian_energy_is_rejected():
+    with pytest.raises(ValidationError):
+        WellnessRequest(mood="стресс", energy="очень высокая", time_available=30)

@@ -104,3 +104,36 @@ async def test_schedule_practice_items_have_correct_shape(client):
         assert "duration" in item
         assert "type" in item
         assert isinstance(item["duration"], int)
+
+
+async def test_schedule_accepts_russian_energy_low(client):
+    response = await client.post(
+        "/schedule",
+        json={"mood": "тревога", "energy": "низкая", "time_available": 30},
+    )
+    assert response.status_code == 200
+    assert "schedule" in response.json()
+
+
+async def test_schedule_accepts_russian_energy_medium(client):
+    response = await client.post(
+        "/schedule",
+        json={"mood": "стресс", "energy": "средняя", "time_available": 20},
+    )
+    assert response.status_code == 200
+
+
+async def test_schedule_accepts_russian_energy_high(client):
+    response = await client.post(
+        "/schedule",
+        json={"mood": "спокойствие", "energy": "высокая", "time_available": 45},
+    )
+    assert response.status_code == 200
+
+
+async def test_schedule_rejects_invalid_russian_energy(client):
+    response = await client.post(
+        "/schedule",
+        json={"mood": "стресс", "energy": "очень высокая", "time_available": 30},
+    )
+    assert response.status_code == 422
